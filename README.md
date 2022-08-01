@@ -4,6 +4,8 @@ Naga is a declarative, stack-based UI module for [Löve][love] projects, written
 # Features
 Naga is designed to be usable by both games and applications, meaning that a single UI framework can be used by the game and its development tools.
 
+## Core Features
+Here is a brief overview of the module:
 * **Declarative UI creation** - simple and self-documenting
 * **Stack-based element creation** - auto-parenting/nesting
 * **Themes** - multiple theme support
@@ -11,6 +13,7 @@ Naga is designed to be usable by both games and applications, meaning that a sin
 * **Gamepad support**
 * **Extensible**
 
+## Elements
 UI objects created with Naga are called **elements**. They are the core building block from which every other type are created.
 The element object is intended to be minimal in that it has all of the most commonly required UI features, and nothing more. It designed to be a
 building block, so that more complex/compound elements may be easily created with it.
@@ -27,6 +30,7 @@ All elements support the following configurable features:
 * **Scrollbars** - modern-style overlayed scrollbars that hide when not in use
 * **Labels** - ??? should this be its own element or not?
 
+## Built-in Extensions
 Elements created via `naga.create` are the sole element type provided by the module. Therefore, a suite of extensions are provided by default.
 Default extension modules include:
 
