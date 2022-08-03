@@ -14,9 +14,9 @@ Here is a brief overview of the module:
 * **Extensible**
 
 ## Elements
-UI objects created with Naga are called **elements**. They are the core building block from which every other type are created.
-The element object is intended to be minimal in that it has all of the most commonly required UI features, and nothing more. It designed to be a
-building block, so that more complex/compound elements may be easily created with it.
+UI objects created with Naga are called **elements**.
+The element is intended to be minimal in that it has all of the most commonly required UI features, and nothing more.
+It designed to be a building block, so that more complex/compound elements may be easily created with it.
 
 All elements support the following configurable features:
 
@@ -34,7 +34,7 @@ All elements support the following configurable features:
 
 ## Built-in Extensions
 Elements created via `naga.create` are the sole element type provided by the module. Therefore, a suite of extensions are provided by default.
-Default extension modules include:
+Out-of-the-box extension modules include:
 
 * **Windows** - including titlebars & buttons
 * **Buttons**
@@ -64,5 +64,23 @@ function love.draw()
 	naga.draw()
 end
 ```
+
+# Tips & Tricks
+
+1. The `none` style
+All themes have an implicit `none` style that can't be overridden. Using this style causes all drawing and interaction with the element to be ignored. However, child elements will still be drawn and can be interacted with, and direct interaction will be passed to the parent (as if it was 'clicked-through').
+
+2. When `element.layout` is called
+To reduce redundant processing, the `layout` function on an element is called when `naga.pop` is called. Calling `naga.popAll` will trigger individual pops for each element on the stack.
+
+3. Implicit min/max sizes
+If the `width` or `height` properties are set, the size of the element is assumed to be of a fixed size, and the min/max width/height are set to the given value(s), meaning that they don't need to be manually specified.
+
+4. The root element
+Naga manages a rootElement that is always the same size as the Löve window. Its `layout` property is set to `naga.layout.free`, allowing the creation of
+top-level elements at arbitrary screen positions without the need for windows or other containers.
+
+5. Style Cascading
+Styles and substyles are inherited from the parent element if not explicitly set. Top-level elements default to the use of the standardised style named `element`.
 
 [love]: https://www.love2d.org/
