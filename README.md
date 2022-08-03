@@ -73,7 +73,7 @@ All themes have an implicit `none` style that can't be overridden. Using this st
 ### When `element.layout` is Called
 To reduce redundant processing, the `layout` function on an element is called when `naga.pop` is called. Calling `naga.popAll` will trigger individual pops for each element on the stack.
 
-Always remember to clear the stack when you're doing creating elements!
+Always remember to clear the stack when you're done creating elements!
 
 ### Implicit min/max Sizes
 If the `width` or `height` properties are set, the size of the element is assumed to be of a fixed size, and the min/max width/height are set to the given value(s), meaning that they don't need to be manually specified.
