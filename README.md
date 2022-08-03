@@ -67,21 +67,28 @@ end
 
 # Tips & Tricks
 
-### The `none` style
+### The `none` Style
 All themes have an implicit `none` style that can't be overridden. Using this style causes all drawing and interaction with the element to be ignored. However, child elements will still be drawn and can be interacted with, and direct interaction will be passed to the parent (as if it was 'clicked-through').
 
-### When `element.layout` is called
+### When `element.layout` is Called
 To reduce redundant processing, the `layout` function on an element is called when `naga.pop` is called. Calling `naga.popAll` will trigger individual pops for each element on the stack.
 
-### Implicit min/max sizes
+Always remember to clear the stack when you're doing creating elements!
+
+### Implicit min/max Sizes
 If the `width` or `height` properties are set, the size of the element is assumed to be of a fixed size, and the min/max width/height are set to the given value(s), meaning that they don't need to be manually specified.
 
-### The root element
-Naga manages a rootElement that is always the same size as the Löve window. Its `layout` property is set to `naga.layout.free`, allowing the creation of
-top-level elements at arbitrary screen positions without the need for windows or other containers.
+### The Root Element
+Naga manages a root element that is always the same size as the Löve window. Its `layout` property is set to `naga.layout.free`, allowing the creation of
+top-level elements at arbitrary screen positions without the need for windows or other containers. All top-level elements are parented to the root element, and its style is set to 'none'.
+
+Though the root element is accessible via the main module, it should not generally be altered.
 
 ### Style Cascading
 Styles and substyles are inherited from the parent element if not explicitly set. Top-level elements default to the use of the standardised style named `element`.
+
+### Relative Positions
+Element positions are relative, and Naga does not store absolute/screen-space coordinates. This allows elements to be moved around, resized, or hidden without expensive tree traversals to update positions. When an element is interacted with via the mouse, the cursor location passed to the relevant function is adjusted relative to the element being interacted with.
 
 # License
 
