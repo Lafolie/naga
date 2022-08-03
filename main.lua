@@ -8,6 +8,13 @@ naga.push.create {x = 0, y = 0, height = 32, canDrag = true, name = "parent"}
 	naga.create {x = 32, y = 16, width = 16, height = 16, style = "button"}
 naga.pop()
 
+naga.push.create {x = 150, y = 16, layout = naga.layout.horizontal, canDrag = true, name = "list"}
+	naga.create {style = "none"}
+	for n = 1, 5 do
+		naga.create {width = 64, style = "button"}
+	end
+naga.pop()
+
 local stats = {}
 function love.load()
 	print(string.format("Took %f seconds to load Naga", times.nagaLoad - times.init))

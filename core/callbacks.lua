@@ -33,7 +33,9 @@ function naga.trace(x, y, element)
 			end
 		end
 
-		return element, x, y
+		if element.style ~= naga.activeTheme.none then
+			return element, x, y
+		end
 	end
 end
 
@@ -62,6 +64,10 @@ function naga.mouseMoved(x, y)
 	end
 
 	local element, hitX, hitY = naga.trace(x, y, naga.rootElement)
+	element = element or naga.rootElement
+	hitX = hitX or -1
+	hitY = hitY or -1
+	
 	local hoverElement = hoverInfo.element or naga.rootElement
 	
 	if element ~= hoverElement then

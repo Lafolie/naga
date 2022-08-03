@@ -25,11 +25,15 @@ naga.push = setmetatable(
 	})
 
 function naga.pop()
-	return remove(stack)
+	local element = remove(stack)
+	element:layout()
+	return element
 end
 
 function naga.popAll()
-	stack = {}
+	for n = #stack, 1, -1 do
+		naga.pop()
+	end
 end
 
 function naga.peek()
