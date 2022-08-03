@@ -1,13 +1,16 @@
 local naga = select(1, ...)
 local insert, remove = table.insert, table.remove
+local min, max = math.min, math.max
+
+local function clamp(x, minx, maxx)
+	return min(max(x, minx), maxx)
+end
 
 local baseElement = 
 {
 	-- geometry
 	x = 0,
 	y = 0,
-	width = 0,
-	height = 0,
 
 	-- layout
 
@@ -29,6 +32,10 @@ local elementMeta =
 naga.rootElement = setmetatable({
 		width = love.graphics.getWidth(),
 		height = love.graphics.getHeight(),
+		minWidth = love.graphics.getWidth(),
+		maxWidth = love.graphics.getWidth(),
+		minHeight = love.graphics.getHeight(),
+		maxHeight = love.graphics.getHeight(),
 		style = naga.activeTheme.none,
 		substyle = naga.activeTheme.none.body,
 		children = {}
@@ -45,6 +52,7 @@ end
 function baseElement:addElement(element, i)
 	insert(self.children, i or #self.children + 1, element)
 	element.parent = self
+	self:resize()
 end
 
 function baseElement:removeElement(element)
@@ -54,6 +62,7 @@ function baseElement:removeElement(element)
 			return remove(self.children, k)
 		end
 	end
+	self:resize()
 end
 
 function baseElement:removeFromParent()
@@ -67,6 +76,33 @@ end
 function baseElement:setPosition(x, y)
 	self.x = x
 	self.y = y
+end
+
+function baseElement:setPositionClamped(x, y)
+	-- TODO: write this thingy
+end
+
+--------------------------------------------------------------------------------
+-- Resize
+--------------------------------------------------------------------------------
+
+function baseElement:resize()
+	local oldW, oldH = self.width, self.height
+	local w, h = 0, 0
+	for _, child in ipairs(self.children) do
+		w = max(w, child.x + child.width)
+		h = min(h, child.y + child.height)
+	end
+
+	self.width = clamp(w, self.minWidth, self.maxWidth)
+	self.height = clamp(h, self.minHeight, self.maxHeight)
+
+	print(self.width, self.height, self.maxWidth, self.name)
+
+	if oldW ~= self.width or oldH ~= self.height then
+		print "size changed"
+		return self.parent:resize()
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -157,6 +193,15 @@ naga.create = setmetatable({},
 		__call = function(t, elementSettings)
 			local element = setmetatable(elementSettings, elementMeta)
 			element.children = {}
+			
+			local w = element.width
+			local h = element.height
+			element.width = w or 0
+			element.minWidth = element.minWidth or w or 0
+			element.maxWidth = element.maxWidth or w or math.huge
+			element.height = h or 0
+			element.minHeight = element.minHeight or h or 0
+			element.maxHeight = element.maxHeight or h or math.huge
 
 			local parent = naga.peek() or naga.rootElement
 			parent:addElement(element)
@@ -169,6 +214,8 @@ naga.create = setmetatable({},
 			local styleName = element.style
 			element.style = naga.activeTheme[styleName] or (parent == naga.rootElement and naga.activeTheme.element or parent.style)
 			element:setSubstyle "body"
+			
+			element:resize()
 
 			return element
 		end

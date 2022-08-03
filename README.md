@@ -28,6 +28,8 @@ All elements support the following configurable features:
 * **Dragging** - elements marked with `canDrag = true` become draggable
 * **Drag & Drop** - draggable elements marked with `canDrop = true` become drag & drop elements
 * **Scrollbars** - modern-style overlayed scrollbars that hide when not in use
+* **Tooltips** - per-element tooltips
+* **Context Menus** - ??? not sure how to do this yet, or whether it should be built-in
 * **Labels** - ??? should this be its own element or not?
 
 ## Built-in Extensions
@@ -38,6 +40,7 @@ Default extension modules include:
 * **Buttons**
 * **Checkboxes**
 * **Radio buttons**
+* **Drop-downs**
 * **Trees**
 * **Table Explorer** - for displaying Lua tables
 * **Separators**

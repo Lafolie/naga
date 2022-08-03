@@ -2,9 +2,10 @@ local times = {init = love.timer.getTime()}
 local naga = require "."
 times.nagaLoad = love.timer.getTime()
 
-naga.create {x = 64, y = 64, width = 64, height = 64, canDrag = true}
-naga.push.create {x = 0, y = 0, width = 32, height = 32, canDrag = true}
-	naga.create {x = 16, y = 16, width = 16, height = 16, style = "button"}
+naga.create {x = 64, y = 64, width = 64, height = 64, canDrag = true, name = "drag square"}
+naga.push.create {x = 0, y = 0, height = 32, canDrag = true, name = "parent"}
+	naga.create {x = 16, y = 16, width = 16, height = 16, style = "button", name = "button"}
+	naga.create {x = 32, y = 16, width = 16, height = 16, style = "button"}
 naga.pop()
 
 local stats = {}
