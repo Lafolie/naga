@@ -67,20 +67,24 @@ end
 
 # Tips & Tricks
 
-**1. The `none` style**
+### The `none` style
 All themes have an implicit `none` style that can't be overridden. Using this style causes all drawing and interaction with the element to be ignored. However, child elements will still be drawn and can be interacted with, and direct interaction will be passed to the parent (as if it was 'clicked-through').
 
-**2. When `element.layout` is called**
+### When `element.layout` is called
 To reduce redundant processing, the `layout` function on an element is called when `naga.pop` is called. Calling `naga.popAll` will trigger individual pops for each element on the stack.
 
-**3. Implicit min/max sizes**
+### Implicit min/max sizes
 If the `width` or `height` properties are set, the size of the element is assumed to be of a fixed size, and the min/max width/height are set to the given value(s), meaning that they don't need to be manually specified.
 
-**4. The root element**
+### The root element
 Naga manages a rootElement that is always the same size as the Löve window. Its `layout` property is set to `naga.layout.free`, allowing the creation of
 top-level elements at arbitrary screen positions without the need for windows or other containers.
 
-**5. Style Cascading**
+### Style Cascading
 Styles and substyles are inherited from the parent element if not explicitly set. Top-level elements default to the use of the standardised style named `element`.
+
+# License
+
+Naga is free software, provided under the MIT software license.
 
 [love]: https://www.love2d.org/
