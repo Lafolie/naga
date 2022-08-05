@@ -64,6 +64,6 @@ function naga.theme(name)
 	naga.activeTheme = theme
 end
 
-naga.loadTheme(modulePath .. "themes/naga.lua")
+naga.loadTheme(modulePath:gsub("%.", "/") .. "themes/naga.lua")
 naga.theme "Naga"
 naga.activeTheme.none = {body = {}}

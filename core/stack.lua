@@ -5,6 +5,7 @@ local stack = {}
 naga.push = setmetatable(
 	{
 		create = function(elementSettings)
+			assert(not elementSettings.isLeaf, "Naga Fatal Error: Can't push leaf elements to the stack!")
 			local element = naga.create(elementSettings)
 			insert(stack, element)
 			return element
@@ -16,6 +17,7 @@ naga.push = setmetatable(
 		end,
 		__index = function(t, k)
 			t[k] = function(elementSettings)
+				assert(not elementSettings.isLeaf, "Naga Fatal Error: Can't push leaf elements to the stack!")
 				local element = naga.create[k](elementSettings)
 				insert(stack, element)
 				return element

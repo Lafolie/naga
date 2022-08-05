@@ -1,9 +1,10 @@
-local modulePath = select(1, ...):gsub("%.", "/")
+local modulePath = select(1, ...)
+local slashedPath = modulePath:gsub("%.", "/")
 
 local naga = {}
 
 local function implement(name)
-	local path = string.format("core/%s/%s.lua", modulePath, name)
+	local path = string.format("core/%s/%s.lua", slashedPath, name)
 	love.filesystem.load(path)(naga, modulePath)
 end
 
@@ -15,6 +16,6 @@ implement "stack"
 implement "callbacks"
 implement "extension"
 
-naga.loadExtensions(string.format("%s/elements", modulePath))
+naga.loadExtensions(string.format("%s/elements", slashedPath))
 
 return naga

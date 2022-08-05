@@ -1,9 +1,20 @@
 local naga = select(1, ...)
 
+--[[
+	Input callbacks handle most of the core functionality, such as substyle
+	updates, dragging, and scrolling. Handling that in the callbacks means
+	fewer overall functions, and leaves the element `onXYZ` functions clear
+	for custom implementations.
+
+	In effect, all styling and default element behaviour is implemented by
+	the Naga internals (such as this file).
+]]
+
 local ordering = {}
 local hoverInfo = {}
 local activeInfo = {}
 local dragInfo = {}
+local scrollInfo = {}
 
 --------------------------------------------------------------------------------
 -- Tracing
@@ -19,17 +30,38 @@ local function intersectPoint(x, y, element)
 		)
 end
 
+--[[
+	Point in AABB collision detection.
+	Trace routine is a three-fold process:
+
+		1. The element is checked for collision
+		2. The element's scrollbars are checked
+		3. The element's children are checked
+
+	Scrollbars take highest precedence as they are always rendered last.
+	Children take precedence over the element.
+	The element is ignored if its style is 'none'.
+]]
 function naga.trace(x, y, element)
 	if intersectPoint(x, y, element) then
 		x = x - element.x
 		y = y - element.y
 
-		for _, child in ipairs(element.children) do
+		if not element.isLeaf then
+			-- check scrollbars
+			local bar = element.scrollbarY
+			if bar and intersectPoint(x, y, bar) then
+				return bar, x - bar.x, y - bar.y
+			end
 
-			local hit, hitX, hitY = naga.trace(x, y, child)
+			-- check children
+			for _, child in ipairs(element.children) do
 
-			if hit then
-				return hit, hitX, hitY
+				local hit, hitX, hitY = naga.trace(x, y, child)
+
+				if hit then
+					return hit, hitX, hitY
+				end
 			end
 		end
 
@@ -49,6 +81,7 @@ function naga.mouseMoved(x, y)
 		return
 	end
 
+	-- element dragging
 	if dragInfo.element then
 		-- we have to use our own deltas since the ones provided by
 		-- love.mousemoved cause a desync when the mouse leaves the window
@@ -63,6 +96,8 @@ function naga.mouseMoved(x, y)
 		end
 	end
 
+	-- update the hover element info
+	-- we do this after dragging to ensure onMouseOver info is correct
 	local element, hitX, hitY = naga.trace(x, y, naga.rootElement)
 	element = element or naga.rootElement
 	hitX = hitX or -1
@@ -80,9 +115,18 @@ function naga.mouseMoved(x, y)
 		element:onBeginHover(hitX, hitY)
 	end
 
+	hoverElement:onMouseOver(hitX, hitY)
+
 	hoverInfo.element = element
 	hoverInfo.x = hitX
 	hoverInfo.y = hitY
+
+	-- update the scrollbar
+	if scrollInfo.element then
+		local dx = x - scrollInfo.x
+		local dy = y - scrollInfo.y
+		scrollInfo.element:updateScrollPosition(dx, dy)
+	end
 end
 
 function naga.mousePressed(x, y, btn)
@@ -100,6 +144,12 @@ function naga.mousePressed(x, y, btn)
 		dragInfo.fromY = element.y
 		dragInfo.started = false
 	end
+
+	if element.isScrollbar then
+		scrollInfo.element = element
+		scrollInfo.x = x
+		scrollInfo.y = y
+	end
 end
 
 function naga.mouseReleased(x, y, button)
@@ -107,9 +157,9 @@ function naga.mouseReleased(x, y, button)
 		activeInfo.element:onRelease(hoverInfo.x, hoverInfo.y, button, true)
 		activeInfo.element:setSubstyle "hover"
 	else
-		activeInfo.element.onRelease(-1, -1, button, false)
+		activeInfo.element:onRelease(-1, -1, button, false)
 		activeInfo.element:setSubstyle "body"
-		hoverInfo.element.onRelease(hoverInfo.x, hoverInfo.y, button, false)
+		hoverInfo.element:onRelease(hoverInfo.x, hoverInfo.y, button, false)
 	end
 
 	activeInfo.element = false
@@ -120,6 +170,10 @@ function naga.mouseReleased(x, y, button)
 		end
 		
 		dragInfo.element = false
+	end
+
+	if scrollInfo.element then
+		scrollInfo.element = false
 	end
 end
 

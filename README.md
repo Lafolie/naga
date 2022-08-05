@@ -66,12 +66,16 @@ end
 ```
 
 # Tips & Tricks
+This section lists a bunch of notes that will eventually be moved to a wiki or something. For now, they live here so I have a place to jot down notes.
 
 ### The `none` Style
 All themes have an implicit `none` style that can't be overridden. Using this style causes all drawing and interaction with the element to be ignored. However, child elements will still be drawn and can be interacted with, and direct interaction will be passed to the parent (as if it was 'clicked-through').
 
+### Leaf Elements
+Elements marked with `isLeaf = true` can't be pushed to the stack and therefore can't have nested elements within them. Leaf elements are typically used for elements at the bottom of the element tree, such as labels, images, or inputs.
+
 ### When `element.layout` is Called
-To reduce redundant processing, the `layout` function on an element is called when `naga.pop` is called. Calling `naga.popAll` will trigger individual pops for each element on the stack.
+To reduce redundant processing, the `layout` function on an element is called when `naga.pop` is called. Calling `naga.popAll` will trigger individual pops for each element on the stack. (Also needs to be called when an element is dirtied?)
 
 Always remember to clear the stack when you're done creating elements!
 

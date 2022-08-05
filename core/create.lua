@@ -1,6 +1,14 @@
-local naga = select(1, ...)
+local naga, modulePath = select(1, ...)
+
+local mkScrollbar = require(modulePath .. ".etc.scrollbar")
+
 local insert, remove = table.insert, table.remove
 local min, max = math.min, math.max
+local floor = math.floor
+
+local function lerp(t, a, b)
+	return (1 - t) * a + t * b
+end
 
 local function clamp(x, minx, maxx)
 	return min(max(x, minx), maxx)
@@ -12,8 +20,14 @@ local baseElement =
 	x = 0,
 	y = 0,
 
-	-- layout
+	-- content & scrolling
 	layout = naga.layout.free,
+	contentWidth = 0,
+	contentHeight =  0,
+	scrollX = 0,
+	scrollY = 0,
+	canScrollX = true,
+	canScrollY = true,
 
 	-- style
 	style = naga.activeTheme.element
@@ -90,20 +104,85 @@ end
 
 function baseElement:resize(w, h)
 	local oldW, oldH = self.width, self.height
-	-- local w, h = 0, 0
-	-- for _, child in ipairs(self.children) do
-	-- 	w = max(w, child.x + child.width)
-	-- 	h = min(h, child.y + child.height)
-	-- end
 
 	self.width = clamp(w, self.minWidth, self.maxWidth)
 	self.height = clamp(h, self.minHeight, self.maxHeight)
 
+	self.contentWidth = w
+	self.contentHeight = h
+
 	print(self.width, self.height, self.maxWidth, self.name)
+	self:regenScrollbars()
 
 	if oldW ~= self.width or oldH ~= self.height then
-		print "size changed"
+		-- print "size changed"
 		-- return self.parent.layout.one(self.parent, self, )
+	end
+end
+
+--------------------------------------------------------------------------------
+-- Scrolling
+--------------------------------------------------------------------------------
+
+function baseElement:regenScrollbars()
+	print "regen"
+	if self.isLeaf then
+		return
+	end
+
+	if self.canScrollX and self.contentWidth > self.width then
+	else
+		self.scrollbarX = nil
+	end
+
+	if self.canScrollY and self.contentHeight > self.height then
+		print(self.name, "has a scrollbar")
+		local scrollbar = self.scrollbarY or mkScrollbar {parent = self, isVertical = true}
+
+		scrollbar.gripHeight = floor(lerp(self.height / self.contentHeight, 16, self.height))
+		print("gripHeight:", scrollbar.gripHeight, "ratio", self.height / self.contentHeight)
+		
+		local area = self.height - scrollbar.gripHeight
+		-- scrollbar.gripY = lerp(self.scrollY / self.contentHeight, 0, area)
+		scrollbar:updateGripPos(0)
+		self.scrollbarY = scrollbar
+
+	elseif self.scrollbarY then
+		self.scrollbarY.hidden = true
+	end
+end
+
+
+--[[
+	Set the scrollX/Y values.
+	Values passed to panTo are expected to be relative to the
+	element's size (contentWdith / contentHeight)
+]]
+
+function baseElement:panTo(x, y)
+	y = clamp(y, 0, self.contentHeight)
+
+end
+
+--[[
+	Set the scrollX/Y values.
+	Values passed to scrollTo are expected to be normalised
+	in the range 0 .. 1
+]]
+function baseElement:scrollTo(x, y)
+	if x then
+
+	end
+
+	if y then
+		y = clamp(y, 0, 1)
+		local area = self.contentHeight - self.height
+		self.scrollY = lerp(y, 0, area)
+		self.scrollbarY:updateGripPos(y)
+		-- print("scrollY:", self.scrollY)
+		-- print("contentHeight:", self.contentHeight, "height:", self.height, "area:", area)
+		-- print("in y:", y)
+		-- print "-------"
 	end
 end
 
@@ -127,20 +206,37 @@ end
 -- Drawing
 --------------------------------------------------------------------------------
 
-function baseElement:draw()
+function baseElement:draw(id)
 	love.graphics.push "all"
 	love.graphics.translate(self.x, self.y)
 	local x, y = love.graphics.transformPoint(0, 0)
 	love.graphics.intersectScissor(x, y, self.width, self.height)
 
 	-- don't items with the special 'none' style
-	if self.style ~= naga.themes.Naga.none then
+	local isNone = self.style == naga.themes.Naga.none
+	if not isNone then
 		love.graphics.setColor(self.substyle.color)
 		love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 	end
 
-	for _, child in ipairs(self.children) do
-		child:draw()
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.print(id or "?", 0, 0)
+
+	if not self.isLeaf then
+		-- draw contents at scroll offset
+		love.graphics.push()
+		love.graphics.translate(-self.scrollX, -self.scrollY)
+		for _, child in ipairs(self.children) do
+			child:draw(_)
+		end
+		love.graphics.pop()
+
+		-- scroll bars
+		if self.scrollbarY then
+			local bar = self.scrollbarY
+			love.graphics.setColor(1, 1, 1, 0.8)
+			love.graphics.rectangle("fill", bar.x + bar.gripX, bar.y + bar.gripY, bar.gripWidth, bar.gripHeight)
+		end
 	end
 
 	love.graphics.pop()
@@ -160,12 +256,16 @@ function baseElement:onEndHover(x, y)
 	
 end
 
+function baseElement:onMouseOver(x, y)
+
+end
+
 function baseElement:onPress(x, y, button)
 	
 end
 
 function baseElement:onRelease(x, y, button, wasPressed)
-	print(wasPressed and "I was pressed :D" or "I wasn't pressed :(")
+	print(self.name, wasPressed and "I was pressed :D" or "I wasn't pressed :(")
 end
 
 -- Drag & Drop -----------------------------------------------------------------

@@ -7,15 +7,6 @@ naga.layout = {}
 -- Free Layout
 --------------------------------------------------------------------------------
 
--- naga.layout.free = {}
-
--- function naga.layout.free.one(element, child, i)
--- 	print("layout:", element.name, child.name)
--- 	local x = child.x + child.width
--- 	local y = child.y + child.height
--- 	element:resize(x, y)
--- end
-
 function naga.layout.free(element)
 	local x, y = 0, 0
 
@@ -30,24 +21,6 @@ end
 --------------------------------------------------------------------------------
 -- Vertical List Layout
 --------------------------------------------------------------------------------
-
--- naga.layout.vertical = {}
-
--- function naga.layout.vertical.one(element, child, i)
--- 	local x = element.width
-
--- 	local oneBefore = element.children[i - 1]
--- 	local y = oneBefore and oneBefore.y + oneBefore.height or 0
-
--- 	for n = i, #element.children do
--- 		local child = element.children[n]
--- 		x = max(child.x + child.width)
--- 		child.y = y
--- 		y = y + child.height
--- 	end
-
--- 	element:resize(x, y)
--- end
 
 function naga.layout.vertical(element)
 	local x, y = 0, 0
