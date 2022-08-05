@@ -13,7 +13,7 @@
 		- when dragging, use the given offset
 ]]
 
-local scrollbar = {isLeaf = true, isScrollbar = true}
+local scrollbar = {isLeaf = true, isScrollbar = true, scrollX = 0, scrollY = 0}
 local mt = {__index = scrollbar}
 
 local function isPointInLine(x, pos, length)
