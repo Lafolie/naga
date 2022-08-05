@@ -26,8 +26,6 @@ end
 
 function scrollbar:normaliseScrollPos(pos)
 	if self.isVertical then
-		--  return (pos - self.gripHeight) / (self.height - self.gripHeight * 2)
-		-- return pos / self.height
 		return pos / (self.height - self.gripHeight)
 	end
 end
@@ -41,8 +39,6 @@ end
 function scrollbar:updateGripPos(t)
 	if self.isVertical then
 		self.gripY = (self.height - self.gripHeight) * t
-		self.scrollT = t
-		-- print(self.height, self.gripY, t)
 	end
 end
 
