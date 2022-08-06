@@ -44,16 +44,20 @@ end
 ]]
 function naga.trace(x, y, element)
 	if intersectPoint(x, y, element) then
-		x = x - (element.x - element.scrollX)
-		y = y - (element.y - element.scrollY)
+		
+		x = x - element.x
+		y = y - element.y
+		
+		-- check scrollbars
+		local bar = element.scrollbarY
+		if bar and intersectPoint(x, y, bar) then
+			return bar, x - bar.x, y - bar.y
+		end
 
+		x = x + element.scrollX
+		y = y + element.scrollY
+		
 		if not element.isLeaf then
-			-- check scrollbars
-			local bar = element.scrollbarY
-			if bar and intersectPoint(x, y, bar) then
-				return bar, x - bar.x, y - bar.y
-			end
-
 			-- check children
 			for _, child in ipairs(element.children) do
 
