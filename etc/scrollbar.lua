@@ -16,6 +16,8 @@
 local scrollbar = {isLeaf = true, isScrollbar = true, scrollX = 0, scrollY = 0}
 local mt = {__index = scrollbar}
 
+local floor = math.floor
+
 local function isPointInLine(x, pos, length)
 	return not (x < pos or x > pos + length)
 end
@@ -27,6 +29,8 @@ end
 function scrollbar:normaliseScrollPos(pos)
 	if self.isVertical then
 		return pos / (self.height - self.gripHeight)
+	else
+		return pos / (self.width - self.gripWidth)
 	end
 end
 
@@ -38,7 +42,9 @@ end
 
 function scrollbar:updateGripPos(t)
 	if self.isVertical then
-		self.gripY = (self.height - self.gripHeight) * t
+		self.gripY = floor((self.height - self.gripHeight) * t)
+	else
+		self.gripX = floor((self.width - self.gripWidth) * t)
 	end
 end
 
@@ -65,14 +71,24 @@ end
 function scrollbar:onPress(x, y, button)
 	self.pressed = true
 
-	if not isPointInLine(y, self.gripY, self.gripHeight) then
-		-- clicked the gutter, so jump immediately
-		local pos = self:normaliseScrollPos(y - self.gripHeight / 2)
-		self.parent:scrollTo(false, pos)
-	end
+	if self.isVertical then
+		if not isPointInLine(y, self.gripY, self.gripHeight) then
+			-- clicked the gutter, so jump immediately
+			local pos = self:normaliseScrollPos(y - self.gripHeight / 2)
+			self.parent:scrollTo(false, pos)
+		end
 
-	local gripOffset = y - self.gripY
-	self.scrollOffset = y - gripOffset
+		local gripOffset = y - self.gripY
+		self.scrollOffset = y - gripOffset
+	else
+		if not isPointInLine(x, self.gripX, self.gripWidth) then
+			local pos = self:normaliseScrollPos(x - self.gripWidth / 2)
+			self.parent:scrollTo(pos, false)
+		end
+
+		local gripOffset = x - self.gripX
+		self.scrollOffset = x - gripOffset
+	end
 end
 
 function scrollbar:onRelease(x, y, button, wasPressed)
@@ -87,6 +103,9 @@ function scrollbar:updateScrollPosition(x, y)
 		if self.isVertical then
 			local pos = self:normaliseScrollPos(self.scrollOffset + y)
 			self.parent:scrollTo(false, pos)
+		else
+			local pos = self:normaliseScrollPos(self.scrollOffset + x)
+			self.parent:scrollTo(pos, false)
 		end
 	end
 end
@@ -100,6 +119,14 @@ return function(settings)
 		bar.height = bar.parent.height
 		bar.gripWidth = 16
 		bar.gripX = 0
+	else
+		bar.x = 0
+		bar.y = bar.parent.height - 16
+		bar.width = bar.parent.width
+		bar.height = 16
+		bar.gripHeight = 16
+		bar.gripY = 0
 	end
+
 	return bar
 end

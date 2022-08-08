@@ -54,6 +54,11 @@ function naga.trace(x, y, element)
 			return bar, x - bar.x, y - bar.y
 		end
 
+		bar = element.scrollbarX
+		if bar and intersectPoint(x, y, bar) then
+			return bar, x - bar.x, y - bar.y
+		end
+
 		x = x + element.scrollX
 		y = y + element.scrollY
 		

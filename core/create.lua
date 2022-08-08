@@ -130,21 +130,35 @@ function baseElement:regenScrollbars()
 		return
 	end
 
-	if self.canScrollX and self.contentWidth > self.width then
-	else
-		self.scrollbarX = nil
+	local needsX = self.canScrollX and self.contentWidth > self.width
+	local needsY = self.canScrollY and self.contentHeight > self.height
+
+	if needsX then
+		local scrollbar = self.scrollbarX or mkScrollbar {parent = self, isHorizontal = true}
+		local barWidth = (needsY or self.reserveCorner) and self.width - 16 or self.width
+		scrollbar.width = barWidth
+		scrollbar.gripWidth = floor(lerp(self.width / self.contentWidth, 16, barWidth))
+
+		scrollbar:updateGripPos(0)
+		scrollbar.hidden = false
+		self.scrollbarX = scrollbar
+
+	elseif self.scrollbarX then
+		self.scrollbarX.hidden = true
 	end
 
-	if self.canScrollY and self.contentHeight > self.height then
-		print(self.name, "has a scrollbar")
+	if needsY then
+		-- print(self.name, "has a scrollbar")
 		local scrollbar = self.scrollbarY or mkScrollbar {parent = self, isVertical = true}
-
-		scrollbar.gripHeight = floor(lerp(self.height / self.contentHeight, 16, self.height))
-		print("gripHeight:", scrollbar.gripHeight, "ratio", self.height / self.contentHeight)
+		local barHeight = (needsX or self.reserveCorner) and self.height - 16 or self.height
+		scrollbar.height = barHeight
+		scrollbar.gripHeight = floor(lerp(self.height / self.contentHeight, 16, barHeight))
+		-- print("gripHeight:", scrollbar.gripHeight, "ratio", self.height / self.contentHeight)
 		
 		local area = self.height - scrollbar.gripHeight
 		-- scrollbar.gripY = lerp(self.scrollY / self.contentHeight, 0, area)
 		scrollbar:updateGripPos(0)
+		scrollbar.hidden = false
 		self.scrollbarY = scrollbar
 
 	elseif self.scrollbarY then
@@ -171,13 +185,16 @@ end
 ]]
 function baseElement:scrollTo(x, y)
 	if x then
-
+		x = clamp(x, 0, 1)
+		local area = self.contentWidth - self.width
+		self.scrollX = floor(lerp(x, 0, area))
+		self.scrollbarX:updateGripPos(x)
 	end
 
 	if y then
 		y = clamp(y, 0, 1)
 		local area = self.contentHeight - self.height
-		self.scrollY = lerp(y, 0, area)
+		self.scrollY = floor(lerp(y, 0, area))
 		self.scrollbarY:updateGripPos(y)
 		-- print("scrollY:", self.scrollY)
 		-- print("contentHeight:", self.contentHeight, "height:", self.height, "area:", area)
@@ -234,6 +251,12 @@ function baseElement:draw(id)
 		-- scroll bars
 		if self.scrollbarY then
 			local bar = self.scrollbarY
+			love.graphics.setColor(1, 1, 1, 0.8)
+			love.graphics.rectangle("fill", bar.x + bar.gripX, bar.y + bar.gripY, bar.gripWidth, bar.gripHeight)
+		end
+
+		if self.scrollbarX then
+			local bar = self.scrollbarX
 			love.graphics.setColor(1, 1, 1, 0.8)
 			love.graphics.rectangle("fill", bar.x + bar.gripX, bar.y + bar.gripY, bar.gripWidth, bar.gripHeight)
 		end

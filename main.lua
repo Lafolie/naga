@@ -9,6 +9,7 @@ naga.pop()
 naga.push.create {x = 0, y = 0, height = 32, canDrag = true, name = "parent"}
 	naga.create {x = 16, y = 16, width = 16, height = 16, style = "button", name = "button"}
 	naga.create {x = 32, y = 16, width = 16, height = 16, style = "button"}
+	naga.create {y = 48, style = "button"}
 naga.pop()
 
 local container = naga.create {x = 150, y = 16, layout = naga.layout.vertical, canDrag = true, name = "list"}
@@ -24,6 +25,13 @@ local scrollTest = naga.push.create {x = 256, y = 256, width = 120, height = 120
 	for n = 1, 5 do
 		naga.create {y = n * 32, width = 64, style = "button"}
 	end
+naga.pop()
+
+local hscrollTest = naga.push.create {x = 512, y = 256, width = 120, height = 120, name = "htest"}
+	for n = 1, 5 do
+		naga.create {x = n * 64, width = 64, style = "button"}
+	end
+	naga.create {y = 200, height = 64, style = "button"}
 naga.pop()
 
 local stats = {}
